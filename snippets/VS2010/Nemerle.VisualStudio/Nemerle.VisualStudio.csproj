@@ -8,6 +8,11 @@
     <VsixSchemaPath>$(VsSDKInstall)\Schemas\VSIXManifestSchema.xsd</VsixSchemaPath>
     <ReferencePath>$(VsSDKInstall)\PublicAssemblies\;$(VsSDKInstall)\VisualStudioIntegration\Common\Assemblies\v4.0</ReferencePath>
     <MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\..\..\..\ExternalDependences</MSBuildCommunityTasksPath>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
   </PropertyGroup>
   <PropertyGroup>
     <Nemerle Condition=" '$(Nemerle)' == '' ">$(ProgramFiles)\Nemerle\Net-4.0</Nemerle>
@@ -25,7 +30,7 @@
     <AssemblyName>Nemerle.VisualStudio</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>nemerle.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <OldToolsVersion>4.0</OldToolsVersion>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>

@@ -793,17 +793,19 @@ namespace Microsoft.VisualStudio.Project
     [CLSCompliant(false)]
     [ComVisible(true)]
     [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Buildable")]
-    public class BuildableProjectConfig : IVsBuildableProjectCfg
+    public class BuildableProjectConfig : IVsBuildableProjectCfg, IVsBuildableProjectCfg2
     {
         #region fields
         ProjectConfig config = null;
         EventSinkCollection callbacks = new EventSinkCollection();
+        IVsBuildManagerAccessor buildManagerAccessor = null;
         #endregion
 
         #region ctors
         public BuildableProjectConfig(ProjectConfig config)
         {
             this.config = config;
+            this.buildManagerAccessor = this.config.ProjectMgr.GetService(typeof(SVsBuildManagerAccessor)) as IVsBuildManagerAccessor;
         }
         #endregion
 
@@ -831,7 +833,7 @@ namespace Microsoft.VisualStudio.Project
             if(supported != null && supported.Length > 0)
                 supported[0] = 1;
             if(ready != null && ready.Length > 0)
-                ready[0] = (this.config.ProjectMgr.BuildInProgress) ? 0 : 1;
+                ready[0] = (this.buildManagerAccessor.IsInProgress()) ? 0 : 1;
             return VSConstants.S_OK;
         }
 
@@ -842,7 +844,7 @@ namespace Microsoft.VisualStudio.Project
             if(supported != null && supported.Length > 0)
                 supported[0] = 1;
             if(ready != null && ready.Length > 0)
-                ready[0] = (this.config.ProjectMgr.BuildInProgress) ? 0 : 1;
+                ready[0] = (this.buildManagerAccessor.IsInProgress()) ? 0 : 1;
             return VSConstants.S_OK;
         }
 
@@ -853,7 +855,7 @@ namespace Microsoft.VisualStudio.Project
             if(supported != null && supported.Length > 0)
                 supported[0] = 0; // TODO:
             if(ready != null && ready.Length > 0)
-                ready[0] = (this.config.ProjectMgr.BuildInProgress) ? 0 : 1;
+                ready[0] = (this.buildManagerAccessor.IsInProgress()) ? 0 : 1;
             return VSConstants.S_OK;
         }
 
@@ -861,7 +863,7 @@ namespace Microsoft.VisualStudio.Project
         {
             CCITracing.TraceCall();
 
-            done = (this.config.ProjectMgr.BuildInProgress) ? 0 : 1;
+            done = (this.buildManagerAccessor.IsInProgress()) ? 0 : 1;
             return VSConstants.S_OK;
         }
 
@@ -917,6 +919,31 @@ namespace Microsoft.VisualStudio.Project
 
             return VSConstants.E_NOTIMPL;
         }
+        #endregion
+
+        #rigion IVsBuildableProjectCfg2 methods
+
+        const VSBLDCFGPROPID_SupportsMTBuild = -16000;
+
+        public int GetBuildCfgProperty(int propid, out object pvar)
+        {
+            switch (propid)
+            {
+                case VSBLDCFGPROPID_SupportsMTBuild:
+                    // Indicate that we support multi-proc builds
+                    pvar = true;
+                    return VSConstants.S_OK;
+                default:
+                    pvar = null;
+                    return VSConstants.E_NOTIMPL;
+            }            
+        }
+
+        public int StartBuildEx(uint dwBuildId, IVsOutputWindowPane pIVsOutputWindowPane, uint dwOptions)
+        {
+            return this.StartBuild(pIVsOutputWindowPane, dwOptions);
+        }
+
         #endregion
 
         #region helpers
